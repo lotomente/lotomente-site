@@ -2,64 +2,55 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LotoMente - Planos</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gradient-to-br from-purple-800 to-indigo-700 min-h-screen flex items-center justify-center text-white">
+<body class="bg-gradient-to-br from-yellow-400 to-orange-500 min-h-screen flex items-center justify-center text-white">
 
-  <main class="bg-white text-gray-900 rounded-xl p-8 shadow-2xl w-full max-w-4xl space-y-10 text-center">
-    <h1 class="text-3xl font-bold mb-6">📦 Escolha seu Plano</h1>
+  <main class="bg-white text-gray-900 p-8 rounded-xl shadow-2xl w-full max-w-3xl space-y-6 text-center">
+    <h1 class="text-3xl font-bold text-yellow-600">💼 Escolha um Plano</h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-      <!-- Plano Grátis -->
-      <div class="bg-gray-100 rounded-lg p-6 shadow space-y-4">
-        <h2 class="text-xl font-bold">Plano Grátis</h2>
-        <ul class="text-sm text-gray-700 space-y-1">
-          <li>✅ Acesso ao painel</li>
-          <li>✅ Até 2 palpites por dia</li>
-          <li>🚫 Sem histórico completo</li>
-        </ul>
-        <p class="text-2xl font-bold text-purple-700 mt-4">R$ 0</p>
-        <button onclick="escolherPlano('gratis')" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded w-full">Escolher</button>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+      <!-- Plano Gratuito -->
+      <div class="border-2 border-yellow-500 p-4 rounded-lg shadow text-left">
+        <h2 class="text-xl font-bold text-yellow-600">Gratuito</h2>
+        <p class="mt-2">✔️ 2 palpites/mês<br>❌ Sem suporte<br>❌ Sem prioridade</p>
+        <button onclick="selecionarPlano('gratis')" class="mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded">Selecionar</button>
       </div>
 
-      <!-- Plano Mensal -->
-      <div class="bg-green-100 rounded-lg p-6 shadow space-y-4 border-2 border-green-600">
-        <h2 class="text-xl font-bold">Mensal Premium</h2>
-        <ul class="text-sm text-gray-800 space-y-1">
-          <li>✅ Palpites ilimitados</li>
-          <li>✅ Acesso ao histórico</li>
-          <li>✅ Suporte prioritário</li>
-        </ul>
-        <p class="text-2xl font-bold text-green-700 mt-4">R$ 9,90</p>
-        <button onclick="escolherPlano('mensal')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full">Escolher</button>
+      <!-- Mensal -->
+      <div class="border-2 border-purple-600 p-4 rounded-lg shadow text-left">
+        <h2 class="text-xl font-bold text-purple-700">Mensal Premium</h2>
+        <p class="mt-2">✔️ Acesso ilimitado<br>✔️ Suporte<br>✔️ Estatísticas exclusivas</p>
+        <button onclick="selecionarPlano('mensal')" class="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded">Selecionar</button>
       </div>
 
-      <!-- Plano Trimestral -->
-      <div class="bg-yellow-100 rounded-lg p-6 shadow space-y-4">
-        <h2 class="text-xl font-bold">Trimestral Premium</h2>
-        <ul class="text-sm text-gray-800 space-y-1">
-          <li>✅ Tudo do Mensal</li>
-          <li>✅ Economia de 15%</li>
-          <li>✅ Validade de 90 dias</li>
-        </ul>
-        <p class="text-2xl font-bold text-yellow-700 mt-4">R$ 24,90</p>
-        <button onclick="escolherPlano('trimestral')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded w-full">Escolher</button>
+      <!-- Trimestral -->
+      <div class="border-2 border-indigo-600 p-4 rounded-lg shadow text-left">
+        <h2 class="text-xl font-bold text-indigo-700">Trimestral Premium</h2>
+        <p class="mt-2">✔️ Tudo do mensal<br>💸 Melhor custo-benefício<br>🧠 Ideal para apostadores sérios</p>
+        <button onclick="selecionarPlano('trimestral')" class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded">Selecionar</button>
       </div>
-
     </div>
 
-    <a href="index.html" class="inline-block mt-8 text-purple-700 font-semibold hover:underline">⬅️ Voltar ao Início</a>
+    <a href="painel.html" class="inline-block mt-6 bg-gray-800 hover:bg-black text-white px-6 py-2 rounded shadow">⬅️ Voltar</a>
   </main>
 
   <script>
-    function escolherPlano(plano) {
-      localStorage.setItem('planoSelecionado', plano);
-      alert("Plano '" + plano + "' ativado com sucesso!");
-      window.location.href = "painel.html";
+    function selecionarPlano(plano) {
+      const nomes = {
+        gratis: "Plano Gratuito",
+        mensal: "Mensal Premium",
+        trimestral: "Trimestral Premium"
+      };
+      const confirmar = confirm("Deseja ativar o " + nomes[plano] + "?");
+      if (confirmar) {
+        localStorage.setItem("planoSelecionado", plano);
+        alert("Plano ativado com sucesso!");
+        window.location.href = "painel.html";
+      }
     }
   </script>
 
