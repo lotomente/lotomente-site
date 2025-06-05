@@ -4,42 +4,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LotoMente - Meus Palpites</title>
+  <title>Meus Palpites - LotoMente</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-gradient-to-br from-purple-700 to-indigo-600 min-h-screen text-white flex items-center justify-center">
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center">
 
-  <main class="bg-white text-gray-900 p-8 rounded-xl shadow-2xl w-full max-w-3xl space-y-8">
-    <h1 class="text-2xl font-bold text-center">🎯 Meus Palpites</h1>
-    <p id="usuario" class="text-center text-sm text-gray-600"></p>
-
-    <div>
-      <h2 class="text-xl font-bold mt-4 mb-2">Mega-Sena</h2>
-      <ul id="lista-mega" class="space-y-2 text-sm text-gray-700"></ul>
-    </div>
-
-    <div>
-      <h2 class="text-xl font-bold mt-6 mb-2">Quina</h2>
-      <ul id="lista-quina" class="space-y-2 text-sm text-gray-700"></ul>
-    </div>
-
-    <div class="text-center mt-6">
-      <a href="index.html" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded shadow">⬅️ Voltar ao Início</a>
-      <button onclick="logout()" class="ml-4 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded shadow">Sair</button>
-    </div>
+  <main class="bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-3xl text-center">
+    <h1 class="text-2xl font-bold mb-6">🔐 Meus Palpites</h1>
+    <div id="palpites-container" class="space-y-6"></div>
+    <a href="index.html" class="mt-6 inline-block bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded shadow">⬅️ Voltar</a>
   </main>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDNBIggOpIxDknGvxVnutLc79xCc9CB_G4",
       authDomain: "lotomente.firebaseapp.com",
       projectId: "lotomente",
-      storageBucket: "lotomente.firebasestorage.app",
+      storageBucket: "lotomente.appspot.com",
       messagingSenderId: "1045885993524",
       appId: "1:1045885993524:web:835f0ca416c2b4bf6ac061"
     };
@@ -48,65 +32,55 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    function formatData(data) {
+      const d = new Date(data.seconds * 1000);
+      return d.toLocaleString("pt-BR");
+    }
+
     auth.onAuthStateChanged(user => {
+      const container = document.getElementById("palpites-container");
+
       if (!user) {
-        alert("Você precisa estar logado para acessar esta página.");
         window.location.href = "login.html";
         return;
       }
 
-      document.getElementById("usuario").innerText = "Logado como: " + user.email;
+      container.innerHTML = "<p class='text-gray-400'>🔄 Carregando palpites...</p>";
 
-      // Carregar Mega
-      db.collection("palpites")
-        .where("uid", "==", user.uid)
-        .orderBy("geradoEm", "desc")
-        .limit(20)
-        .get()
-        .then(snapshot => {
-          const lista = document.getElementById("lista-mega");
-          if (snapshot.empty) {
-            lista.innerHTML = "<li>Nenhum palpite da Mega-Sena encontrado.</li>";
-            return;
-          }
-          snapshot.forEach(doc => {
+      const promises = [
+        db.collection("palpites").where("uid", "==", user.uid).orderBy("geradoEm", "desc").get(),
+        db.collection("palpites_quina").where("uid", "==", user.uid).orderBy("geradoEm", "desc").get()
+      ];
+
+      Promise.all(promises).then(([megaSnap, quinaSnap]) => {
+        let html = "";
+
+        if (megaSnap.empty && quinaSnap.empty) {
+          container.innerHTML = "<p class='text-red-400'>😕 Nenhum palpite encontrado.</p>";
+          return;
+        }
+
+        if (!megaSnap.empty) {
+          html += "<h2 class='text-lg font-semibold text-green-400 mb-2'>Mega-Sena</h2><ul class='mb-6 space-y-2'>";
+          megaSnap.forEach(doc => {
             const d = doc.data();
-            const dataHora = new Date(d.geradoEm.toDate()).toLocaleString("pt-BR");
-            const item = document.createElement("li");
-            item.className = "bg-gray-100 p-2 rounded shadow font-mono";
-            item.textContent = `${dataHora}: ${d.dezenas.join(" – ")}`;
-            lista.appendChild(item);
+            html += `<li class='bg-green-700 p-3 rounded'>${d.dezenas.join(" - ")}<br><small class='text-sm text-gray-300'>${formatData(d.geradoEm)}</small></li>`;
           });
-        });
+          html += "</ul>";
+        }
 
-      // Carregar Quina
-      db.collection("palpites_quina")
-        .where("uid", "==", user.uid)
-        .orderBy("geradoEm", "desc")
-        .limit(20)
-        .get()
-        .then(snapshot => {
-          const lista = document.getElementById("lista-quina");
-          if (snapshot.empty) {
-            lista.innerHTML = "<li>Nenhum palpite da Quina encontrado.</li>";
-            return;
-          }
-          snapshot.forEach(doc => {
+        if (!quinaSnap.empty) {
+          html += "<h2 class='text-lg font-semibold text-yellow-400 mb-2'>Quina</h2><ul class='space-y-2'>";
+          quinaSnap.forEach(doc => {
             const d = doc.data();
-            const dataHora = new Date(d.geradoEm.toDate()).toLocaleString("pt-BR");
-            const item = document.createElement("li");
-            item.className = "bg-gray-100 p-2 rounded shadow font-mono";
-            item.textContent = `${dataHora}: ${d.dezenas.join(" – ")}`;
-            lista.appendChild(item);
+            html += `<li class='bg-yellow-700 p-3 rounded'>${d.dezenas.join(" - ")}<br><small class='text-sm text-gray-200'>${formatData(d.geradoEm)}</small></li>`;
           });
-        });
-    });
+          html += "</ul>";
+        }
 
-    function logout() {
-      firebase.auth().signOut().then(() => {
-        window.location.href = "login.html";
+        container.innerHTML = html;
       });
-    }
+    });
   </script>
 
 </body>
