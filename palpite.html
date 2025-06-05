@@ -66,12 +66,13 @@
       }
 
       db.collection("palpites").add({
-        dezenas: dezenas,
-        geradoEm: new Date(),
-        uid: usuarioLogado.uid,
-        email: usuarioLogado.email
-      })
-      .then(() => {
+  dezenas: dezenas,
+  geradoEm: firebase.firestore.Timestamp.now(),
+  uid: usuarioLogado.uid,
+  email: usuarioLogado.email
+});
+
+      then(() => {
         console.log("Palpite salvo com usuário.");
       })
       .catch((error) => {

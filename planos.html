@@ -2,68 +2,66 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LotoMente - Planos</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gradient-to-br from-yellow-400 to-orange-500 min-h-screen flex items-center justify-center text-white">
+<body class="bg-gradient-to-br from-purple-800 to-indigo-700 min-h-screen flex items-center justify-center text-white">
 
-  <main class="bg-white text-gray-900 p-8 rounded-xl shadow-2xl w-full max-w-4xl text-center space-y-8">
-    <h1 class="text-3xl font-bold">💼 Planos da LotoMente</h1>
-    <p class="text-gray-600">Escolha o plano ideal para turbinar seus palpites:</p>
+  <main class="bg-white text-gray-900 rounded-xl p-8 shadow-2xl w-full max-w-4xl space-y-10 text-center">
+    <h1 class="text-3xl font-bold mb-6">📦 Escolha seu Plano</h1>
 
-    <div class="grid md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
       <!-- Plano Grátis -->
-      <div class="bg-gray-100 rounded-xl p-6 shadow">
-        <h2 class="text-xl font-bold mb-2">Plano Gratuito</h2>
-        <p class="text-gray-700 mb-4">Ideal para começar!</p>
-        <ul class="text-left text-sm text-gray-600 mb-4 space-y-1">
-          <li>✔️ Palpites da Mega e Quina</li>
-          <li>✔️ Histórico salvo</li>
-          <li>❌ Sem personalização de IA</li>
-          <li>❌ Sem suporte</li>
+      <div class="bg-gray-100 rounded-lg p-6 shadow space-y-4">
+        <h2 class="text-xl font-bold">Plano Grátis</h2>
+        <ul class="text-sm text-gray-700 space-y-1">
+          <li>✅ Acesso ao painel</li>
+          <li>✅ Até 2 palpites por dia</li>
+          <li>🚫 Sem histórico completo</li>
         </ul>
-        <span class="font-bold text-lg">R$ 0,00</span>
+        <p class="text-2xl font-bold text-purple-700 mt-4">R$ 0</p>
+        <button onclick="escolherPlano('gratis')" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded w-full">Escolher</button>
       </div>
 
-      <!-- Plano Intermediário -->
-      <div class="bg-blue-100 rounded-xl p-6 shadow border-2 border-blue-400">
-        <h2 class="text-xl font-bold mb-2">Plano Intermediário</h2>
-        <p class="text-gray-700 mb-4">Para quem quer mais chances!</p>
-        <ul class="text-left text-sm text-gray-600 mb-4 space-y-1">
-          <li>✔️ Palpites com IA otimizada</li>
-          <li>✔️ Estatísticas de dezenas</li>
-          <li>✔️ Histórico ampliado</li>
-          <li>❌ Suporte via WhatsApp</li>
+      <!-- Plano Mensal -->
+      <div class="bg-green-100 rounded-lg p-6 shadow space-y-4 border-2 border-green-600">
+        <h2 class="text-xl font-bold">Mensal Premium</h2>
+        <ul class="text-sm text-gray-800 space-y-1">
+          <li>✅ Palpites ilimitados</li>
+          <li>✅ Acesso ao histórico</li>
+          <li>✅ Suporte prioritário</li>
         </ul>
-        <span class="font-bold text-lg">R$ 14,90/mês</span>
-        <div class="mt-4">
-          <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            Assinar Agora
-          </button>
-        </div>
+        <p class="text-2xl font-bold text-green-700 mt-4">R$ 9,90</p>
+        <button onclick="escolherPlano('mensal')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full">Escolher</button>
       </div>
 
-      <!-- Plano Premium -->
-      <div class="bg-yellow-100 rounded-xl p-6 shadow border-2 border-yellow-500">
-        <h2 class="text-xl font-bold mb-2">Plano Premium</h2>
-        <p class="text-gray-700 mb-4">Para quem leva sorte a sério!</p>
-        <ul class="text-left text-sm text-gray-600 mb-4 space-y-1">
-          <li>✔️ IA Avançada com filtros</li>
-          <li>✔️ Suporte por WhatsApp</li>
-          <li>✔️ Ranking de palpites</li>
-          <li>✔️ Acesso total ao histórico</li>
+      <!-- Plano Trimestral -->
+      <div class="bg-yellow-100 rounded-lg p-6 shadow space-y-4">
+        <h2 class="text-xl font-bold">Trimestral Premium</h2>
+        <ul class="text-sm text-gray-800 space-y-1">
+          <li>✅ Tudo do Mensal</li>
+          <li>✅ Economia de 15%</li>
+          <li>✅ Validade de 90 dias</li>
         </ul>
-        <span class="font-bold text-lg">R$ 39,90/mês</span>
-        <div class="mt-4">
-          <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
-            Assinar Agora
-          </button>
-        </div>
+        <p class="text-2xl font-bold text-yellow-700 mt-4">R$ 24,90</p>
+        <button onclick="escolherPlano('trimestral')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded w-full">Escolher</button>
       </div>
+
     </div>
+
+    <a href="index.html" class="inline-block mt-8 text-purple-700 font-semibold hover:underline">⬅️ Voltar ao Início</a>
   </main>
+
+  <script>
+    function escolherPlano(plano) {
+      localStorage.setItem('planoSelecionado', plano);
+      alert("Plano '" + plano + "' ativado com sucesso!");
+      window.location.href = "painel.html";
+    }
+  </script>
 
 </body>
 </html>
