@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LotoMente - Meus Palpites</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-purple-700 to-indigo-600 min-h-screen text-white flex items-center justify-center">
+
+  <main class="bg-white text-gray-900 p-8 rounded-xl shadow-2xl w-full max-w-3xl space-y-8">
+    <h1 class="text-2xl font-bold text-center">🎯 Meus Palpites</h1>
+    <p id="usuario" class="text-center text-sm text-gray-600"></p>
+
+    <div>
+      <h2 class="text-xl font-bold mt-4 mb-2">Mega-Sena</h2>
+      <ul id="lista-mega" class="space-y-2 text-sm text-gray-700"></ul>
+    </div>
+
+    <div>
+      <h2 class="text-xl font-bold mt-6 mb-2">Quina</h2>
+      <ul id="lista-quina" class="space-y-2 text-sm text-gray-700"></ul>
+    </div>
+
+    <div class="text-center mt-6">
+      <a href="index.html" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded shadow">⬅️ Voltar ao Início</a>
+      <button onclick="logout()" class="ml-4 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded shadow">Sair</button>
+    </div>
+  </main>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDNBIggOpIxDknGvxVnutLc79xCc9CB_G4",
+      authDomain: "lotomente.firebaseapp.com",
+      projectId: "lotomente",
+      storageBucket: "lotomente.firebasestorage.app",
+      messagingSenderId: "1045885993524",
+      appId: "1:1045885993524:web:835f0ca416c2b4bf6ac061"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        alert("Você precisa estar logado para acessar esta página.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      document.getElementById("usuario").innerText = "Logado como: " + user.email;
+
+      // Carregar Mega
+      db.collection("palpites")
+        .where("uid", "==", user.uid)
+        .orderBy("geradoEm", "desc")
+        .limit(20)
+        .get()
+        .then(snapshot => {
+          const lista = document.getElementById("lista-mega");
+          if (snapshot.empty) {
+            lista.innerHTML = "<li>Nenhum palpite da Mega-Sena encontrado.</li>";
+            return;
+          }
+          snapshot.forEach(doc => {
+            const d = doc.data();
+            const dataHora = new Date(d.geradoEm.toDate()).toLocaleString("pt-BR");
+            const item = document.createElement("li");
+            item.className = "bg-gray-100 p-2 rounded shadow font-mono";
+            item.textContent = `${dataHora}: ${d.dezenas.join(" – ")}`;
+            lista.appendChild(item);
+          });
+        });
+
+      // Carregar Quina
+      db.collection("palpites_quina")
+        .where("uid", "==", user.uid)
+        .orderBy("geradoEm", "desc")
+        .limit(20)
+        .get()
+        .then(snapshot => {
+          const lista = document.getElementById("lista-quina");
+          if (snapshot.empty) {
+            lista.innerHTML = "<li>Nenhum palpite da Quina encontrado.</li>";
+            return;
+          }
+          snapshot.forEach(doc => {
+            const d = doc.data();
+            const dataHora = new Date(d.geradoEm.toDate()).toLocaleString("pt-BR");
+            const item = document.createElement("li");
+            item.className = "bg-gray-100 p-2 rounded shadow font-mono";
+            item.textContent = `${dataHora}: ${d.dezenas.join(" – ")}`;
+            lista.appendChild(item);
+          });
+        });
+    });
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+      });
+    }
+  </script>
+
+</body>
+</html>

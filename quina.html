@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LotoMente - Quina</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <main class="max-w-xl mx-auto mt-10 p-6 bg-white rounded shadow">
+    <h1 class="text-2xl font-bold mb-6 text-center">Palpite Inteligente - Quina</h1>
+
+    <div class="flex justify-center mb-4">
+      <button onclick="gerarPalpiteQuina()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Gerar Palpite</button>
+    </div>
+
+    <div class="bg-gray-100 p-4 rounded shadow text-lg font-mono text-center">
+      <span id="resultado">Clique no botão para gerar um palpite da Quina...</span>
+    </div>
+    <p id="statusUsuario" class="text-center mt-4 text-sm text-gray-600"></p>
+  </main>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDNBIggOpIxDknGvxVnutLc79xCc9CB_G4",
+      authDomain: "lotomente.firebaseapp.com",
+      projectId: "lotomente",
+      storageBucket: "lotomente.firebasestorage.app",
+      messagingSenderId: "1045885993524",
+      appId: "1:1045885993524:web:835f0ca416c2b4bf6ac061"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let usuarioLogado = null;
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        usuarioLogado = user;
+        document.getElementById("statusUsuario").innerText = "Logado como: " + user.email;
+      } else {
+        usuarioLogado = null;
+        document.getElementById("statusUsuario").innerText = "Você precisa estar logado para salvar palpites.";
+      }
+    });
+
+    function gerarPalpiteQuina() {
+      const numeros = Array.from({ length: 80 }, (_, i) => (i + 1).toString().padStart(2, '0'));
+      const shuffle = arr => arr.sort(() => 0.5 - Math.random());
+      const dezenas = shuffle(numeros).slice(0, 5).sort((a, b) => a - b);
+
+      document.getElementById('resultado').innerText = dezenas.join(" – ");
+
+      if (!usuarioLogado) {
+        alert("Faça login para salvar seus palpites.");
+        return;
+      }
+
+      db.collection("palpites_quina").add({
+        dezenas: dezenas,
+        geradoEm: new Date(),
+        uid: usuarioLogado.uid,
+        email: usuarioLogado.email
+      })
+      .then(() => {
+        console.log("Palpite da Quina salvo com usuário.");
+      })
+      .catch((error) => {
+        console.error("Erro ao salvar palpite da Quina:", error);
+      });
+    }
+  </script>
+
+</body>
+</html>

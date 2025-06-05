@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LotoMente - Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-purple-700 to-indigo-600 min-h-screen flex items-center justify-center text-white">
+
+  <main class="bg-white text-gray-900 p-8 rounded-xl shadow-2xl w-full max-w-md space-y-6">
+    <h1 class="text-2xl font-bold text-center">🔐 Entrar na LotoMente</h1>
+
+    <div class="space-y-4">
+      <input id="email" type="email" placeholder="Email" class="w-full p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500">
+      <input id="senha" type="password" placeholder="Senha" class="w-full p-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500">
+
+      <button onclick="login()" class="bg-purple-600 text-white py-2 w-full rounded hover:bg-purple-700 font-semibold">Entrar</button>
+      <button onclick="criarConta()" class="bg-gray-200 text-gray-800 py-2 w-full rounded hover:bg-gray-300 font-semibold">Criar Conta</button>
+
+      <p id="mensagem" class="text-center text-sm mt-4 text-red-600"></p>
+    </div>
+  </main>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDNBIggOpIxDknGvxVnutLc79xCc9CB_G4",
+      authDomain: "lotomente.firebaseapp.com",
+      projectId: "lotomente",
+      storageBucket: "lotomente.firebasestorage.app",
+      messagingSenderId: "1045885993524",
+      appId: "1:1045885993524:web:835f0ca416c2b4bf6ac061"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    function login() {
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+      auth.signInWithEmailAndPassword(email, senha)
+        .then(() => {
+          document.getElementById('mensagem').innerText = "Login realizado com sucesso!";
+        })
+        .catch(error => {
+          document.getElementById('mensagem').innerText = "Erro: " + error.message;
+        });
+    }
+
+    function criarConta() {
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+      auth.createUserWithEmailAndPassword(email, senha)
+        .then(() => {
+          document.getElementById('mensagem').innerText = "Conta criada com sucesso!";
+        })
+        .catch(error => {
+          document.getElementById('mensagem').innerText = "Erro: " + error.message;
+        });
+    }
+  </script>
+
+</body>
+</html>
