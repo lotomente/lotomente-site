@@ -1,31 +1,26 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pagamento Confirmado</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-green-100 min-h-screen flex items-center justify-center">
-
-  <main class="bg-white p-8 rounded-lg shadow-md text-center max-w-lg w-full">
-    <h1 class="text-2xl font-bold text-green-700 mb-4">✅ Pagamento confirmado!</h1>
-    <p class="mb-4">Seu plano foi ativado com sucesso. Aproveite todos os recursos premium da LotoMente!</p>
-    <a href="painel.html" class="inline-block mt-4 px-6 py-2 bg-green-600 text-white rounded shadow hover:bg-green-700">Ir para o painel</a>
+<body class="bg-green-700 text-white flex items-center justify-center min-h-screen">
+  <main class="bg-white text-gray-900 p-8 rounded-xl shadow-2xl text-center w-full max-w-md">
+    <h1 class="text-2xl font-bold mb-4">✅ Pagamento Confirmado</h1>
+    <p id="msg">Registrando seu plano...</p>
+    <a href="painel.html" class="mt-6 inline-block bg-green-600 text-white px-6 py-2 rounded shadow">Ir ao Painel</a>
   </main>
-
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyDNBIggOpIxDknGvxVnutLc79xCc9CB_G4",
+      apiKey: "SUA_API_KEY",
       authDomain: "lotomente.firebaseapp.com",
       projectId: "lotomente",
-      storageBucket: "lotomente.firebasestorage.app",
+      storageBucket: "lotomente.appspot.com",
       messagingSenderId: "1045885993524",
       appId: "1:1045885993524:web:835f0ca416c2b4bf6ac061"
     };
@@ -34,27 +29,32 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    function obterPlanoDaURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("plano") || "mensal";
+    }
+
     auth.onAuthStateChanged(user => {
-      if (user) {
-        const plano = localStorage.getItem("planoSelecionado") || "desconhecido";
-
-        db.collection("planos_ativos").doc(user.uid).set({
-          uid: user.uid,
-          email: user.email,
-          plano: plano,
-          ativadoEm: new Date()
-        })
-        .then(() => {
-          console.log("Plano salvo no Firestore com sucesso.");
-        })
-        .catch((error) => {
-          console.error("Erro ao salvar plano:", error);
-        });
-
-      } else {
-        alert("Você não está logado. Faça login para concluir a ativação do plano.");
-        window.location.href = "login.html";
+      if (!user) {
+        document.getElementById("msg").innerText = "Erro: você não está logado.";
+        return;
       }
+
+      const plano = obterPlanoDaURL();
+      const hoje = new Date();
+      const validade = new Date();
+      validade.setMonth(validade.getMonth() + (plano === "trimestral" ? 3 : 1));
+
+      db.collection("assinaturas").doc(user.uid).set({
+        email: user.email,
+        plano,
+        validade: firebase.firestore.Timestamp.fromDate(validade),
+        criadoEm: firebase.firestore.Timestamp.now()
+      }).then(() => {
+        document.getElementById("msg").innerText = `Plano ${plano} ativado com sucesso até ${validade.toLocaleDateString("pt-BR")}.`;
+      }).catch(() => {
+        document.getElementById("msg").innerText = "Erro ao registrar plano no banco de dados.";
+      });
     });
   </script>
 </body>
