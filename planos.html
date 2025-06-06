@@ -1,75 +1,45 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Escolha seu Plano - LotoMente</title>
+  <title>LotoMente - Planos</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://js.stripe.com/v3/"></script>
 </head>
-<body class="bg-gradient-to-br from-purple-700 to-indigo-800 min-h-screen flex items-center justify-center text-white">
+<body class="bg-gradient-to-br from-purple-700 to-indigo-700 min-h-screen flex items-center justify-center text-white">
 
-  <main class="bg-white text-gray-900 p-8 rounded-xl shadow-2xl w-full max-w-2xl text-center space-y-6">
-    <h1 class="text-3xl font-bold">Escolha seu Plano</h1>
-    <p class="text-gray-600">Aposte com inteligência. Acesso gratuito ou plano premium com vantagens exclusivas.</p>
+  <main class="bg-white text-gray-900 p-8 rounded-xl shadow-2xl w-full max-w-xl space-y-6">
+    <h1 class="text-3xl font-bold text-center">💎 Planos Premium</h1>
+    <p class="text-center text-sm text-gray-600 mb-4">
+      Assine um plano para desbloquear todos os recursos da LotoMente.
+    </p>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-      <!-- Gratuito -->
-      <div class="border p-6 rounded-xl shadow space-y-4 bg-gray-100">
-        <h2 class="text-xl font-bold text-purple-700">Plano Gratuito</h2>
-        <p class="text-sm text-gray-600">2 palpites por mês</p>
-        <button onclick="ativarPlanoGratuito()" class="w-full bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
-          Selecionar Gratuito
+    <!-- PLANO MENSAL -->
+    <div class="bg-purple-100 p-4 rounded shadow">
+      <h2 class="text-xl font-bold text-purple-800 mb-2">Plano Mensal</h2>
+      <p class="mb-4 text-sm">Receba 2 palpites grátis por mês + acesso premium completo por 30 dias.</p>
+      <form action="https://buy.stripe.com/test_1RWoOXKSs26vCNdVJTFOP6SC" method="POST">
+        <button class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded w-full font-bold shadow-lg">
+          Assinar Plano Mensal – R$14,90
         </button>
-      </div>
-
-      <!-- Mensal -->
-      <div class="border p-6 rounded-xl shadow space-y-4 bg-gray-100">
-        <h2 class="text-xl font-bold text-green-700">Mensal Premium</h2>
-        <p class="text-sm text-gray-600">Palpites ilimitados por 30 dias</p>
-        <button onclick="checkout('price_1RWoSMKSs26vCNdVs7g7UsGR')" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-          Assinar R$14,90/mês
-        </button>
-      </div>
-
-      <!-- Trimestral -->
-      <div class="border p-6 rounded-xl shadow space-y-4 bg-gray-100">
-        <h2 class="text-xl font-bold text-blue-700">Trimestral Premium</h2>
-        <p class="text-sm text-gray-600">Economia e acesso por 3 meses</p>
-        <button onclick="checkout('price_1RWoOXKSs26vCNdVJTFOP6SC')" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          Assinar R$39,90/trimestre
-        </button>
-      </div>
+      </form>
     </div>
 
-    <div class="text-center mt-8">
-      <a href="index.html" class="text-sm text-gray-500 hover:text-gray-800">⬅️ Voltar</a>
+    <!-- PLANO TRIMESTRAL -->
+    <div class="bg-indigo-100 p-4 rounded shadow">
+      <h2 class="text-xl font-bold text-indigo-800 mb-2">Plano Trimestral</h2>
+      <p class="mb-4 text-sm">Economize mais! Acesso premium por 3 meses com todos os recursos liberados.</p>
+      <form action="https://buy.stripe.com/test_1RWoSMKSs26vCNdVs7g7UsGR" method="POST">
+        <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded w-full font-bold shadow-lg">
+          Assinar Plano Trimestral – R$39,90
+        </button>
+      </form>
+    </div>
+
+    <div class="text-center mt-6">
+      <a href="index.html" class="text-sm text-gray-500 hover:text-purple-700">⬅️ Voltar ao início</a>
     </div>
   </main>
-
-  <script>
-    const stripe = Stripe("pk_live_51RWnW9KSs26vCNdVAx8TtbZwQMNAAf2JsnwO9PkZYF6Oh4H5j37s4abXBIF9ZyYCY9w3kp7eK3gDs4hGxV2ibA5U00tIIYsgeg");
-
-    function checkout(priceId) {
-      stripe.redirectToCheckout({
-        lineItems: [{ price: priceId, quantity: 1 }],
-        mode: 'subscription',
-        successUrl: window.location.origin + "/sucesso.html",
-        cancelUrl: window.location.origin + "/cancel.html"
-      }).then(function (result) {
-        if (result.error) {
-          alert("Erro ao iniciar pagamento: " + result.error.message);
-        }
-      });
-    }
-
-    function ativarPlanoGratuito() {
-      localStorage.setItem("planoSelecionado", "gratuito");
-      alert("Plano gratuito ativado. Aproveite seus 2 palpites por mês!");
-      window.location.href = "painel.html";
-    }
-  </script>
 
 </body>
 </html>
