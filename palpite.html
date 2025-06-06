@@ -4,22 +4,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LotoMente - Palpite</title>
+  <title>LotoMente - Gerador de Palpites</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gradient-to-br from-purple-800 to-indigo-700 min-h-screen flex items-center justify-center text-white">
+<body class="bg-gradient-to-br from-blue-700 to-indigo-800 min-h-screen text-white flex items-center justify-center">
 
-  <main class="bg-white text-gray-900 p-8 rounded-xl shadow-2xl w-full max-w-xl text-center space-y-6">
-    <h1 class="text-3xl font-bold">🔮 Gerador de Palpites</h1>
-    <p id="statusUsuario" class="text-sm text-gray-600"></p>
+  <main class="bg-white text-gray-900 p-8 rounded-xl shadow-2xl w-full max-w-2xl space-y-8">
+    <h1 class="text-2xl font-bold text-center">🎰 Gerador de Palpites</h1>
+    <p id="statusUsuario" class="text-center text-sm text-gray-600 mb-4"></p>
 
-    <div class="space-y-4">
-      <button onclick="if (podeGerarPalpite('mega')) gerarPalpiteMega()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded shadow">Gerar Palpite Mega-Sena</button>
-      <button onclick="if (podeGerarPalpite('quina')) gerarPalpiteQuina()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow">Gerar Palpite Quina</button>
-      <p id="resultado" class="mt-4 text-xl font-mono text-gray-800"></p>
+    <div class="text-center space-y-4">
+      <button onclick="gerarPalpiteMega()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded shadow">
+        Gerar Palpite Mega-Sena
+      </button>
+      <button onclick="gerarPalpiteQuina()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded shadow">
+        Gerar Palpite Quina
+      </button>
+      <p id="resultado" class="mt-4 font-mono text-lg text-indigo-700"></p>
     </div>
 
-    <a href="painel.html" class="inline-block mt-6 text-purple-700 font-semibold hover:underline">⬅️ Voltar ao Painel</a>
+    <div class="text-center">
+      <a href="painel.html" class="text-sm text-blue-600 hover:underline">⬅️ Voltar ao painel</a>
+    </div>
   </main>
 
   <!-- Firebase SDK -->
@@ -40,12 +46,22 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
+
     let usuarioLogado = null;
+    let planoAtivo = "gratuito";
 
     auth.onAuthStateChanged(user => {
       if (user) {
         usuarioLogado = user;
         document.getElementById("statusUsuario").innerText = "Logado como: " + user.email;
+
+        db.collection("planos_ativos").doc(user.uid).get().then(doc => {
+          if (doc.exists) {
+            planoAtivo = doc.data().plano || "gratuito";
+            console.log("Plano ativo:", planoAtivo);
+          }
+        });
+
       } else {
         usuarioLogado = null;
         document.getElementById("statusUsuario").innerText = "Você precisa estar logado para salvar palpites.";
@@ -53,73 +69,60 @@
     });
 
     function gerarPalpiteMega() {
-      const numeros = Array.from({ length: 60 }, (_, i) => (i + 1).toString().padStart(2, '0'));
-      const shuffle = arr => arr.sort(() => 0.5 - Math.random());
-      const dezenas = shuffle(numeros).slice(0, 6).sort((a, b) => a - b);
-
-      document.getElementById('resultado').innerText = "Mega-Sena: " + dezenas.join(" – ");
-
-      if (!usuarioLogado) {
-        alert("Faça login para salvar seus palpites.");
-        return;
-      }
-
-      db.collection("palpites").add({
-        dezenas: dezenas,
-        geradoEm: new Date(),
-        uid: usuarioLogado.uid,
-        email: usuarioLogado.email
-      }).then(() => {
-        console.log("Palpite da Mega salvo.");
-      }).catch((error) => {
-        console.error("Erro ao salvar palpite:", error);
-      });
+      gerarPalpite("mega");
     }
 
     function gerarPalpiteQuina() {
-      const numeros = Array.from({ length: 80 }, (_, i) => (i + 1).toString().padStart(2, '0'));
-      const shuffle = arr => arr.sort(() => 0.5 - Math.random());
-      const dezenas = shuffle(numeros).slice(0, 5).sort((a, b) => a - b);
+      gerarPalpite("quina");
+    }
 
-      document.getElementById('resultado').innerText = "Quina: " + dezenas.join(" – ");
-
+    function gerarPalpite(tipo) {
       if (!usuarioLogado) {
         alert("Faça login para salvar seus palpites.");
         return;
       }
 
-      db.collection("palpites_quina").add({
+      const numeros = Array.from({ length: tipo === "mega" ? 60 : 80 }, (_, i) => (i + 1).toString().padStart(2, '0'));
+      const shuffle = arr => arr.sort(() => 0.5 - Math.random());
+      const dezenas = shuffle(numeros).slice(0, tipo === "mega" ? 6 : 5).sort((a, b) => a - b);
+      document.getElementById("resultado").innerText = dezenas.join(" – ");
+
+      if (planoAtivo === "gratuito") {
+        const inicioMes = new Date();
+        inicioMes.setDate(1);
+        inicioMes.setHours(0, 0, 0, 0);
+
+        const colecao = tipo === "mega" ? "palpites" : "palpites_quina";
+        db.collection(colecao)
+          .where("uid", "==", usuarioLogado.uid)
+          .where("geradoEm", ">=", inicioMes)
+          .get()
+          .then(snapshot => {
+            if (snapshot.size >= 2) {
+              alert("Limite mensal de 2 palpites gratuitos atingido. Assine um plano para mais palpites.");
+            } else {
+              salvarPalpite(colecao, dezenas);
+            }
+          });
+      } else {
+        const colecao = tipo === "mega" ? "palpites" : "palpites_quina";
+        salvarPalpite(colecao, dezenas);
+      }
+    }
+
+    function salvarPalpite(colecao, dezenas) {
+      db.collection(colecao).add({
         dezenas: dezenas,
         geradoEm: new Date(),
         uid: usuarioLogado.uid,
         email: usuarioLogado.email
-      }).then(() => {
-        console.log("Palpite da Quina salvo.");
-      }).catch((error) => {
+      })
+      .then(() => {
+        console.log("Palpite salvo com sucesso.");
+      })
+      .catch((error) => {
         console.error("Erro ao salvar palpite:", error);
       });
-    }
-  </script>
-
-  <!-- Limite mensal para plano gratuito -->
-  <script>
-    function podeGerarPalpite(tipo) {
-      const plano = localStorage.getItem('planoSelecionado') || 'gratis';
-      const hoje = new Date();
-      const chaveMes = `limite_mes_${hoje.getFullYear()}-${(hoje.getMonth()+1).toString().padStart(2, '0')}`;
-      let usado = parseInt(localStorage.getItem(chaveMes)) || 0;
-
-      if (plano === 'mensal' || plano === 'trimestral') {
-        return true;
-      }
-
-      if (usado >= 2) {
-        alert("❌ Você atingiu o limite de 2 palpites gratuitos neste mês. Faça upgrade para continuar usando.");
-        return false;
-      }
-
-      localStorage.setItem(chaveMes, usado + 1);
-      return true;
     }
   </script>
 
