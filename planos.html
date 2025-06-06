@@ -28,7 +28,7 @@
       <div class="border p-6 rounded-xl shadow space-y-4 bg-gray-100">
         <h2 class="text-xl font-bold text-green-700">Mensal Premium</h2>
         <p class="text-sm text-gray-600">Palpites ilimitados por 30 dias</p>
-        <button onclick="checkout('prod_SRhorH3bR4myw1')" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+        <button onclick="checkout('price_1RWoSMKSs26vCNdVs7g7UsGR')" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
           Assinar R$14,90/mês
         </button>
       </div>
@@ -37,7 +37,7 @@
       <div class="border p-6 rounded-xl shadow space-y-4 bg-gray-100">
         <h2 class="text-xl font-bold text-blue-700">Trimestral Premium</h2>
         <p class="text-sm text-gray-600">Economia e acesso por 3 meses</p>
-        <button onclick="checkout('prod_SRhsGk3IXMraJv')" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button onclick="checkout('price_1RWoOXKSs26vCNdVJTFOP6SC')" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
           Assinar R$39,90/trimestre
         </button>
       </div>
@@ -51,27 +51,16 @@
   <script>
     const stripe = Stripe("pk_live_51RWnW9KSs26vCNdVAx8TtbZwQMNAAf2JsnwO9PkZYF6Oh4H5j37s4abXBIF9ZyYCY9w3kp7eK3gDs4hGxV2ibA5U00tIIYsgeg");
 
-    function checkout(produtoId) {
-      fetch("https://api.stripe.com/v1/prices", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "Authorization": "Bearer sk_test_placeholder"
-        },
-        body: `product=${produtoId}`
-      })
-      .then(response => response.json())
-      .then(data => {
-        stripe.redirectToCheckout({
-          lineItems: [{ price: data.id, quantity: 1 }],
-          mode: 'subscription',
-          successUrl: window.location.origin + "/sucesso.html",
-          cancelUrl: window.location.origin + "/cancel.html"
-        });
-      })
-      .catch(err => {
-        console.error("Erro ao iniciar checkout:", err);
-        alert("Erro ao iniciar pagamento. Tente novamente.");
+    function checkout(priceId) {
+      stripe.redirectToCheckout({
+        lineItems: [{ price: priceId, quantity: 1 }],
+        mode: 'subscription',
+        successUrl: window.location.origin + "/sucesso.html",
+        cancelUrl: window.location.origin + "/cancel.html"
+      }).then(function (result) {
+        if (result.error) {
+          alert("Erro ao iniciar pagamento: " + result.error.message);
+        }
       });
     }
 
