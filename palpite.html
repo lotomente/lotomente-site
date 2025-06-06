@@ -21,6 +21,12 @@
         Gerar Palpite Quina
       </button>
       <p id="resultado" class="mt-4 font-mono text-lg text-indigo-700"></p>
+      <div id="upgrade" class="mt-4 hidden">
+        <p class="text-red-600 font-semibold mb-2">🔒 Limite atingido para plano gratuito.</p>
+        <a href="planos.html" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded shadow inline-block">
+          🔓 Desbloquear Palpites Ilimitados
+        </a>
+      </div>
     </div>
 
     <div class="text-center">
@@ -87,26 +93,28 @@
       const dezenas = shuffle(numeros).slice(0, tipo === "mega" ? 6 : 5).sort((a, b) => a - b);
       document.getElementById("resultado").innerText = dezenas.join(" – ");
 
+      const colecao = tipo === "mega" ? "palpites" : "palpites_quina";
+
       if (planoAtivo === "gratuito") {
         const inicioMes = new Date();
         inicioMes.setDate(1);
         inicioMes.setHours(0, 0, 0, 0);
 
-        const colecao = tipo === "mega" ? "palpites" : "palpites_quina";
         db.collection(colecao)
           .where("uid", "==", usuarioLogado.uid)
           .where("geradoEm", ">=", inicioMes)
           .get()
           .then(snapshot => {
             if (snapshot.size >= 2) {
-              alert("Limite mensal de 2 palpites gratuitos atingido. Assine um plano para mais palpites.");
+              document.getElementById("upgrade").classList.remove("hidden");
             } else {
               salvarPalpite(colecao, dezenas);
+              document.getElementById("upgrade").classList.add("hidden");
             }
           });
       } else {
-        const colecao = tipo === "mega" ? "palpites" : "palpites_quina";
         salvarPalpite(colecao, dezenas);
+        document.getElementById("upgrade").classList.add("hidden");
       }
     }
 
